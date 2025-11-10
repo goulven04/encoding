@@ -1,0 +1,43 @@
+version: 1.0.{build}
+
+image: Visual Studio 2022
+
+build_script:
+  - cmd: echo === System and Locale Information ===
+  - cmd: systeminfo | findstr /B /C:"OS Name" /C:"System Locale" /C:"Input Locale"
+  - cmd: echo.
+  - cmd: echo === Code Page Information ===
+  - cmd: echo Active Code Page:
+  - cmd: chcp
+  - cmd: echo.
+  - cmd: echo Registry Code Page Settings:
+  - cmd: reg query "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Nls\CodePage"
+  - cmd: echo.
+  - cmd: echo === Environment Locale Variables ===
+  - cmd: set LANG
+  - cmd: set LC
+  - cmd: echo.
+  - cmd: echo === Full Environment Variables (set) ===
+  - cmd: set
+  - cmd: echo.
+  - cmd: echo === MSBuild Encoding Detection ===
+  - cmd: msbuild -version
+  - cmd: echo.
+  - cmd: echo === C Runtime Locale Info ===
+  - cmd: >
+      echo #include ^<clocale^> ^|^| #include ^<iostream^> ^|^| int main(){std::cout
+      << "setlocale: " << setlocale(LC_ALL, NULL) << "\n"; return 0;} > check_locale.cpp
+  - cmd: cl check_locale.cpp /Fecheck_locale.exe
+  - cmd: check_locale.exe
+  - cmd: echo.
+  - cmd: echo === PowerShell Encoding Info ===
+  - ps: |
+      Write-Host "PowerShell default encoding:" -ForegroundColor Cyan
+      Write-Host "  $([Console]::OutputEncoding)"
+      Write-Host "  $([System.Text.Encoding]::Default)"
+      Write-Host "  $([System.Text.Encoding]::UTF8)"
+  - cmd: echo.
+  - cmd: echo === Git Encoding Info (if available) ===
+  - cmd: git config --list | findstr encoding || echo No Git encoding configured.
+  - cmd: echo.
+  - cmd: echo === Done ===
