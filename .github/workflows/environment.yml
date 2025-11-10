@@ -28,13 +28,6 @@ jobs:
           set LC
           set
 
-      - name: PowerShell Encoding Info
-        run: |
-          Write-Host 'Console Output Encoding:'; [Console]::OutputEncoding
-          Write-Host 'System Default Encoding:'; [System.Text.Encoding]::Default
-          Write-Host 'UTF-8 Encoding:'; [System.Text.Encoding]::UTF8"
-          echo.
-
       - name: Git Encoding Config (if available)
         run: |
           git config --list | findstr encoding || echo No Git encoding configured.
