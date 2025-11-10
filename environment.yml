@@ -14,82 +14,40 @@ jobs:
         uses: actions/checkout@v4
 
       - name: System and Locale Information
-        shell: cmd
         run: |
-          echo === System and Locale Information ===
           systeminfo | findstr /B /C:"OS Name" /C:"System Locale" /C:"Input Locale"
-          echo.
 
       - name: Code Page Information
-        shell: cmd
         run: |
-          echo === Code Page Information ===
-          echo Active Code Page:
-          chcp
-          echo.
-          echo Registry Code Page Settings:
           reg query "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Nls\CodePage"
-          echo.
 
       - name: Environment Variables and Locale
-        shell: cmd
         run: |
-          echo === Environment Locale Variables ===
           set LANG
           set LC
-          echo.
-          echo === Full Environment Variables (set) ===
           set
-          echo.
 
       - name: MSBuild Encoding Detection
-        shell: cmd
         run: |
-          echo === MSBuild Encoding Detection ===
           msbuild -version
-          echo.
-
-      - name: Compile and Run Locale Test (C++)
-        shell: cmd
-        run: |
-          echo #include ^<clocale^> ^|^| #include ^<iostream^> ^|^| int main(){std::cout << "setlocale: " << setlocale(LC_ALL, NULL) << "\n"; return 0;} > check_locale.cpp
-          cl check_locale.cpp /Fecheck_locale.exe
-          check_locale.exe
-          echo.
 
       - name: PowerShell Encoding Info
-        shell: cmd
         run: |
-          echo === PowerShell Encoding Info ===
-          powershell -Command "Write-Host 'Console Output Encoding:'; [Console]::OutputEncoding"
-          powershell -Command "Write-Host 'System Default Encoding:'; [System.Text.Encoding]::Default"
-          powershell -Command "Write-Host 'UTF-8 Encoding:'; [System.Text.Encoding]::UTF8"
+          Write-Host 'Console Output Encoding:'; [Console]::OutputEncoding
+          Write-Host 'System Default Encoding:'; [System.Text.Encoding]::Default
+          Write-Host 'UTF-8 Encoding:'; [System.Text.Encoding]::UTF8"
           echo.
 
       - name: Git Encoding Config (if available)
-        shell: cmd
         run: |
-          echo === Git Encoding Info ===
           git config --list | findstr encoding || echo No Git encoding configured.
-          echo.
 
       - name: Save All Results to File
         shell: cmd
         run: |
-          echo === Charset Report === > charset_report.txt
-          echo. >> charset_report.txt
-          systeminfo | findstr /B /C:"OS Name" /C:"System Locale" /C:"Input Locale" >> charset_report.txt
-          echo. >> charset_report.txt
-          chcp >> charset_report.txt
-          echo. >> charset_report.txt
-          reg query "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Nls\CodePage" >> charset_report.txt
-          echo. >> charset_report.txt
-          set >> charset_report.txt
-          echo. >> charset_report.txt
-          msbuild -version >> charset_report.txt
-          echo. >> charset_report.txt
-          check_locale.exe >> charset_report.txt
-          echo. >> charset_report.txt
-          powershell -Command "[Console]::OutputEncoding" >> charset_report.txt
-          powershell -Command "[System.Text.Encoding]::Default" >> charset_report.txt
-          powershell -Command "[System.Text.Encoding]::UTF8" >> charset_report._
+          systeminfo | findstr /B /C:"OS Name" /C:"System Locale" /C:"Input Locale"
+          chcp
+          reg query "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Nls\CodePage"
+          set
+          msbuild -version
+          check_locale.exe
