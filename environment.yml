@@ -1,0 +1,99 @@
+name: Charset and Encoding Info
+
+on:
+  workflow_dispatch:
+  push:
+  pull_request:
+
+jobs:
+  charset-info:
+    runs-on: windows-2022
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Display System and Locale Information
+        run: |
+          echo === System and Locale Information ===
+          systeminfo | findstr /B /C:"OS Name" /C:"System Locale" /C:"Input Locale"
+          echo.
+
+      - name: Display Code Page Information
+        run: |
+          echo === Code Page Information ===
+          echo Active Code Page:
+          chcp
+          echo.
+          echo Registry Code Page Settings:
+          reg query "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Nls\CodePage"
+          echo.
+
+      - name: Display Environment Variables Related to Locale
+        run: |
+          echo === Environment Locale Variables ===
+          set LANG
+          set LC
+          echo.
+          echo === Full Environment Variables (set) ===
+          set
+          echo.
+
+      - name: Display MSBuild Encoding Detection
+        run: |
+          echo === MSBuild Encoding Detection ===
+          msbuild -version
+          echo.
+
+      - name: Compile and Run Locale Test (C++)
+        run: |
+          echo #include ^<clocale^> ^|^| #include ^<iostream^> ^|^| int main(){std::cout << "setlocale: " << setlocale(LC_ALL, NULL) << "\n"; return 0;} > check_locale.cpp
+          cl check_locale.cpp /Fecheck_locale.exe
+          .\check_locale.exe
+          echo.
+
+      - name: Display PowerShell Encoding Info
+        shell: pwsh
+        run: |
+          Write-Host "=== PowerShell Encoding Info ==="
+          Write-Host "Console Output Encoding:" -ForegroundColor Cyan
+          Write-Host "  $([Console]::OutputEncoding)"
+          Write-Host "System Default Encoding:" -ForegroundColor Cyan
+          Write-Host "  $([System.Text.Encoding]::Default)"
+          Write-Host "UTF-8 Encoding:" -ForegroundColor Cyan
+          Write-Host "  $([System.Text.Encoding]::UTF8)"
+          Write-Host ""
+
+      - name: Display Git Encoding Config (if available)
+        run: |
+          echo === Git Encoding Info ===
+          git config --list | findstr encoding || echo No Git encoding configured.
+          echo.
+
+      - name: Save all results to file
+        run: |
+          echo === Charset Report === > charset_report.txt
+          echo. >> charset_report.txt
+          systeminfo | findstr /B /C:"OS Name" /C:"System Locale" /C:"Input Locale" >> charset_report.txt
+          echo. >> charset_report.txt
+          chcp >> charset_report.txt
+          echo. >> charset_report.txt
+          reg query "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Nls\CodePage" >> charset_report.txt
+          echo. >> charset_report.txt
+          set >> charset_report.txt
+          echo. >> charset_report.txt
+          msbuild -version >> charset_report.txt
+          echo. >> charset_report.txt
+          .\check_locale.exe >> charset_report.txt
+          echo. >> charset_report.txt
+          powershell -Command "Write-Output ([Console]::OutputEncoding)" >> charset_report.txt
+          powershell -Command "Write-Output ([System.Text.Encoding]::Default)" >> charset_report.txt
+          powershell -Command "Write-Output ([System.Text.Encoding]::UTF8)" >> charset_report.txt
+          echo. >> charset_report.txt
+          git config --list | findstr encoding >> charset_report.txt || echo No Git encoding configured. >> charset_report.txt
+
+      - name: Upload charset report as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: charset-report
+          path: charset_report.txt
