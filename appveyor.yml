@@ -7,10 +7,10 @@ build_script:
   - cmd: systeminfo | findstr /B /C:"OS Name" /C:"System Locale" /C:"Input Locale"
   - cmd: echo.
   - cmd: echo === Code Page Information ===
-  - cmd: echo Active Code Page:
+  - cmd: echo Active Code Page
   - cmd: chcp
   - cmd: echo.
-  - cmd: echo Registry Code Page Settings:
+  - cmd: echo Registry Code Page Settings
   - cmd: reg query "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Nls\CodePage"
   - cmd: echo.
   - cmd: echo === Environment Locale Variables ===
