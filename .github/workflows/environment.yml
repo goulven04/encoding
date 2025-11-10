@@ -28,10 +28,6 @@ jobs:
           set LC
           set
 
-      - name: MSBuild Encoding Detection
-        run: |
-          msbuild -version
-
       - name: PowerShell Encoding Info
         run: |
           Write-Host 'Console Output Encoding:'; [Console]::OutputEncoding
