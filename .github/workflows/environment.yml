@@ -22,6 +22,7 @@ jobs:
           reg query "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Nls\CodePage"
 
       - name: Environment Variables and Locale
+        shell: cmd
         run: |
           set LANG
           set LC
